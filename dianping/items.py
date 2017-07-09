@@ -20,3 +20,18 @@ class shopItem(Item):
     address = Field()
     area = Field()
     img = Field()
+    shopId = Field()
+
+    categoryId = Field()
+    categoryName = Field()
+
+    child_categoryId = Field()
+    child_categoryName = Field()
+
+    cityId = Field()
+
+class categoryItem(Item):
+    categoryId = Field()
+    categoryName = Field()
+    children = Field()
+    category = 'category'
