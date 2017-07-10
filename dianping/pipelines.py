@@ -33,6 +33,7 @@ class MongoPipeline(object):
         # if item.__class__ == 'categoryItem':
         if item.__class__.__name__ == 'categoryItem':
             self.db[item.category].update({'categoryId':item['categoryId']},{'$set':item},True)
-        # if item.__class__.__name__ == 'shopItem':
-        #     self.db[item['category']].update({'name': item['name']}, {'$set': item}, True)
+        if item.__class__.__name__ == 'shopItem':
+            # item['categoryName'] = self.db['category'].find_one({'categoryId': item['categoryId']}).get('categoryName')
+            self.db[item['categoryId']].update({'shopId': item['shopId']}, {'$set': item}, True)
         return item

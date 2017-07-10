@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 import json
-
+from dianping.settings import MONGO_URI,MONGO_DATABASE
 import re
 from scrapy import Spider,Request
 from dianping.items import shopItem,categoryItem
 import pymongo
+import logging
 
 class DianpingspiderSpider(Spider):
     name = 'dianpingspider'
     allowed_domains = ['www.dianping.com']
     # start_urls = ['http://www.dianping.com/']
+    client = pymongo.MongoClient(MONGO_URI)
+    db = client[MONGO_DATABASE]
+    logger = logging.getLogger()
 
     menu_url = 'http://www.dianping.com/ajax/json/category/menu?cityId={cityId}'
 
@@ -20,6 +24,8 @@ class DianpingspiderSpider(Spider):
 
     def parse_menu(self,response):
         result = json.loads(response.text)
+        cityId = re.search('cityId=(.*?)$',response.url).group(1)
+        self.logger.debug('cityId=',cityId)
         try:
             if 'categories' in result.keys() and result.get('categories'):
                 categories = result.get('categories')
@@ -29,6 +35,9 @@ class DianpingspiderSpider(Spider):
                         if field in category.keys():
                             item[field] = category.get(field)
                     yield item
+                    for child in item.get('children'):
+                        yield Request(self.category_url.format(cityId=cityId,categoryId=item['categoryId'],child_categoryId=child.get('categoryId')),callback=self.parse_shop)
+
         except Exception:
             raise Exception
 
@@ -64,6 +73,7 @@ class DianpingspiderSpider(Spider):
                 item['address'] = li.xpath('.//div[@class="txt"]/div[@class="tag-addr"]/span[@class="addr"]/text()').extract_first()
 
                 item['categoryId'] = re.search(r'category\/(.*?)\/(.*?)\/g(.*?)$', response.url).group(2)
+                # item['categoryName'] = self.db['category'].find_one({'categoryId':item['categoryId']}).get('categoryName')
 
                 item['child_categoryId'] = re.search(r'category\/(.*?)\/(.*?)\/g(.*?)$', response.url).group(3)
 

@@ -1,6 +1,10 @@
 import re
 import requests
 from requests.exceptions import ConnectionError
+import pymongo
+
+client = pymongo.MongoClient('localhost')
+db = client['dianping_shanghai']
 
 menu_url = 'http://www.dianping.com/ajax/json/category/menu?cityId={cityId}'
 
@@ -29,13 +33,23 @@ def getCategory(cityId):
 def retest():
     url = 'http://www.dianping.com/search/category/1/10/g101'
     groups = re.search(r'category\/(.*?)\/(.*?)\/g(.*?)$',url).group()
-    for group in groups:
-        print(group)
 
+    url1 = 'http://www.dianping.com/ajax/json/category/menu?cityId=1'
+
+    print(re.search('cityId=(.*?)$',url1).group(1))
+
+    # for group in groups:
+    #     print(group)
+
+
+def getData(id):
+    ms = db['category'].find_one({'categoryId':id},{'_id':0})
+    print(ms)
+    print(ms['categoryName'])
+    print(ms.get('children'))
 
 def main():
-    text = getCategory('1')
-    print(text)
-
+    # getData(10)
+    retest()
 if __name__ == '__main__':
     main()
