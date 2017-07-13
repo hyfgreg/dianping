@@ -43,9 +43,10 @@ class DianpingspiderSpider(Spider):
 
     def parse_test(self, response):
         url = 'http://www.dianping.com/search/category/1/10/g101'
-        a = re.search(r'category\/(.*?)\/(.*?)\/g(.*?)$', url).group(1)
-        b = re.search(r'category\/(.*?)\/(.*?)\/g(.*?)$', url).group(2)
-        c = re.search(r'category\/(.*?)\/(.*?)\/g(.*?)$', url).group(3)
+        print(response.url)
+        a = re.search(r'category\/(\d+)\/(\d+)\/g(\d+)', response.url).group(1)
+        b = re.search(r'category\/(\d+)\/(\d+)\/g(\d+)', response.url).group(2)
+        c = re.search(r'category\/(\d+)\/(\d+)\/g(\d+)', response.url).group(3)
         print(a,b,c)
 
 
@@ -72,12 +73,12 @@ class DianpingspiderSpider(Spider):
                 item['area'] = li.xpath('.//div[@class="txt"]/div[@class="tag-addr"]/a[2]/span/text()').extract_first()
                 item['address'] = li.xpath('.//div[@class="txt"]/div[@class="tag-addr"]/span[@class="addr"]/text()').extract_first()
 
-                item['categoryId'] = re.search(r'category\/(.*?)\/(.*?)\/g(.*?)$', response.url).group(2)
+                item['categoryId'] = re.search(r'category\/(\d+)\/(\d+)\/g(\d+)', response.url).group(2)
                 # item['categoryName'] = self.db['category'].find_one({'categoryId':item['categoryId']}).get('categoryName')
 
-                item['child_categoryId'] = re.search(r'category\/(.*?)\/(.*?)\/g(.*?)$', response.url).group(3)
+                item['child_categoryId'] = re.search(r'category\/(\d+)\/(\d+)\/g(\d+)', response.url).group(3)
 
-                item['cityId'] = re.search(r'category\/(.*?)\/(.*?)\/g(.*?)$', response.url).group(1)
+                item['cityId'] = re.search(r'category\/(\d+)\/(\d+)\/g(\d+)', response.url).group(1)
 
                 yield item
             except TypeError:
